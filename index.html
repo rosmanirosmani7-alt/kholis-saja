@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Perasaan Jatuh Cinta — Tema Pink</title>
+  <meta name="description" content="Halaman single-file bertema pink cerah dengan animasi love berterbangan, efek ornamennya lembut, dan pilihan Terima/Tolak yang interaktif."/>
+  <style>
+    /* =====================
+       THEME & TOKENS
+       ===================== */
+    :root{
+      --pink-1:#ff5fa3;     /* primary */
+      --pink-2:#ff86bf;     /* accent */
+      --pink-3:#ffc1dc;     /* soft */
+      --pink-4:#ffe6f2;     /* pale */
+      --ink:#4a1740;        /* text */
+      --ink-soft:#6e2a5f;
+      --bg:#fff7fb;
+      --glass: rgba(255,255,255,.6);
+      --shadow: 0 10px 30px rgba(255,95,163,.35);
+      --radius: 28px;
+    }
+
+    *{ box-sizing: border-box }
+    html,body{ height:100% }
+    body{
+      margin:0; color:var(--ink);
+      font-family: "Poppins", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      background:
+        radial-gradient(1200px 500px at -10% 0%, #ffe0f1, transparent 60%),
+        radial-gradient(1000px 600px at 110% 0%, #ffe7f3, transparent 60%),
+        linear-gradient(180deg, var(--bg), #fff);
+      overflow-x:hidden;
+    }
+
+    a{ color:var(--pink-1); text-decoration:none }
+    a:hover{ text-decoration:underline }
+
+    .wrap{
+      min-height:100svh; display:grid; place-items:center; padding:clamp(18px,4vw,40px);
+      position:relative; isolation:isolate;
+    }
+
+    /* BACKGROUND ORNAMENTS */
+    .blob{
+      position:absolute; filter: blur(60px); opacity:.45; z-index:0; pointer-events:none;
+    }
+    .blob.a{ width:380px; height:380px; background: radial-gradient(circle at 30% 30%, var(--pink-3), transparent 60%); left:-80px; top:-60px }
+    .blob.b{ width:440px; height:440px; background: radial-gradient(circle at 70% 40%, var(--pink-2), transparent 60%); right:-120px; top:-90px }
+
+    /* CARD */
+    .card{
+      position:relative; z-index:1; width:min(980px,100%);
+      background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.75));
+      border:1px solid #ffd7eb; border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: clamp(18px, 5vw, 48px);
+      backdrop-filter: blur(6px);
+    }
+
+    .title{ font-size: clamp(28px, 6vw, 60px); line-height:1.05; margin:0 0 10px 0; text-align:center }
+    .title .accent{ color:var(--pink-1); text-shadow:0 10px 30px rgba(255,95,163,.25) }
+
+    .subtitle{ text-align:center; font-size: clamp(14px, 2.6vw, 20px); margin:0 0 22px 0; color:var(--ink-soft) }
+
+    .prose{ max-width: 70ch; margin: 0 auto; font-size: clamp(16px, 2.8vw, 20px); line-height:1.7; text-align:center }
+    .prose p{ margin:0 0 14px 0 }
+
+    .divider{ height:1px; background: linear-gradient(90deg, transparent, #ffd7eb, transparent); margin: 24px auto; width:80% }
+
+    .cta{ display:flex; gap:12px; justify-content:center; align-items:center; flex-wrap:wrap; margin-top:18px }
+
+    .btn{ appearance:none; border:0; cursor:pointer; padding: 14px 20px; border-radius:16px; font-weight:700; font-size:16px; box-shadow:var(--shadow); transition: transform .15s ease, box-shadow .2s ease }
+    .btn.primary{ background: linear-gradient(135deg, var(--pink-1), var(--pink-2)); color:white }
+    .btn.ghost{ background:transparent; color:var(--ink); border:2px solid var(--pink-2) }
+    .btn:hover{ transform: translateY(-2px); box-shadow:0 16px 34px rgba(255,95,163,.45) }
+    .btn:active{ transform: translateY(0) scale(.98) }
+
+    /* HEART PARTICLES over the text */
+    .hearts{ position:absolute; inset:0; z-index:2; pointer-events:none; overflow:visible }
+    .heart{
+      position:absolute; width:18px; height:18px; transform: rotate(45deg);
+      background: var(--pink-2); opacity:.3; border-radius: 3px; animation: floatUp linear forwards;
+      will-change: transform, opacity;
+    }
+    .heart::before,.heart::after{ content:""; position:absolute; width:18px; height:18px; background:inherit; border-radius:50% }
+    .heart::before{ left:-9px }
+    .heart::after{ top:-9px }
+    @keyframes floatUp{ to{ transform: translateY(-110vh) rotate(45deg); opacity:0 } }
+
+    /* PASSING HEART RIBBON through text */
+    .ribbon{
+      position:absolute; inset:0; z-index:1; pointer-events:none;
+    }
+    .ribbon svg{ position:absolute; width:min(1200px, 150%); left:50%; top:58%; transform:translate(-50%,-50%); opacity:.25; filter: drop-shadow(0 10px 18px rgba(255,95,163,.3)) }
+
+    /* ACCEPT/DECLINE MODALS */
+    .modal{ position:fixed; inset:0; display:none; place-items:center; background: rgba(255, 164, 210, .18); backdrop-filter: blur(2px); z-index: 9 }
+    .modal.show{ display:grid }
+    .modal .box{ background:#fff; border-radius:22px; padding:28px; width:min(620px, 92vw); box-shadow: var(--shadow); border:1px solid #ffe0f0; text-align:center }
+    .modal .box h3{ margin:0 0 10px 0; font-size: clamp(20px, 4vw, 30px) }
+    .modal .box p{ margin:0 0 10px 0; color:var(--ink-soft) }
+
+    .confetti{ position:fixed; inset:0; pointer-events:none; z-index:10 }
+
+    footer{ text-align:center; padding:18px; color:#a04b88; font-size:14px }
+
+    @media (max-width:420px){ .btn{ width:100% } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Soft blobs -->
+    <div class="blob a"></div>
+    <div class="blob b"></div>
+
+    <!-- Card Content -->
+    <article class="card" aria-label="Surat perasaan jatuh cinta tema pink">
+      <h1 class="title">Perasaan <span class="accent">Jatuh Cinta</span></h1>
+      <p class="subtitle">saat namamu jadi warna paling terang di hariku</p>
+
+      <section class="prose" id="teks">
+        <p>Dear kamu,</p>
+        <p>Setiap kali aku mengingatmu, ada sesuatu yang hangat berpendar di dada, seperti kilau senja yang memerah muda. Aku ingin jujur: aku jatuh cinta. Bukan cinta yang berisik, tapi yang pelan—yang mengajarkan sabar, yang menenangkan, yang membuatku ingin jadi versi terbaik dari diriku.</p>
+        <p>Aku suka caramu tertawa, caramu berbicara, bahkan caramu diam yang membuat waktu terasa lembut. Dalam hari yang padat, kamu adalah jeda; dalam malam yang panjang, kamu adalah lampu kecil yang tak padam.</p>
+        <p>Kalau kamu bersedia, aku ingin berjalan berdampingan melewati hal-hal sederhana: bertukar cerita, mengendus aroma hujan, tertawa atas hal-hal receh, dan merencanakan hari esok yang lebih baik. Dan kalaupun belum waktunya, tak apa—aku tetap menghargai kamu, utuh.</p>
+        <p style="margin-top:8px"><strong>Jadi… maukah kamu memberi kesempatan pada rasa ini?</strong></p>
+      </section>
+
+      <div class="divider"></div>
+
+      <div class="cta" role="group" aria-label="Pilihan jawaban">
+        <button id="btnTerima" class="btn primary" aria-label="Terima perasaan">Terima 💖</button>
+        <button id="btnTolak" class="btn ghost" aria-label="Tolak dengan baik">Tolak 🙏</button>
+      </div>
+
+      <p class="subtitle" id="status" aria-live="polite" style="margin-top:10px"></p>
+    </article>
+
+    <!-- Floating hearts layer -->
+    <div class="hearts" id="hearts" aria-hidden="true"></div>
+
+    <!-- Ribbon of hearts passing through text -->
+    <div class="ribbon" aria-hidden="true">
+      <svg viewBox="0 0 1200 200" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="g" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stop-color="#ff86bf"/>
+            <stop offset="100%" stop-color="#ff5fa3"/>
+          </linearGradient>
+          <path id="heart" d="M10 30 C10 15, 25 10, 30 20 C35 10, 50 15, 50 30 C50 45, 30 55, 30 55 C30 55, 10 45, 10 30 Z"/>
+        </defs>
+        <g opacity=".6">
+          <use href="#heart" x="0"   y="40" fill="url(#g)"/>
+          <use href="#heart" x="60"  y="60" fill="url(#g)"/>
+          <use href="#heart" x="120" y="35" fill="url(#g)"/>
+          <use href="#heart" x="180" y="70" fill="url(#g)"/>
+          <use href="#heart" x="240" y="50" fill="url(#g)"/>
+          <use href="#heart" x="300" y="40" fill="url(#g)"/>
+          <use href="#heart" x="360" y="65" fill="url(#g)"/>
+          <use href="#heart" x="420" y="45" fill="url(#g)"/>
+          <use href="#heart" x="480" y="75" fill="url(#g)"/>
+          <use href="#heart" x="540" y="55" fill="url(#g)"/>
+          <use href="#heart" x="600" y="35" fill="url(#g)"/>
+          <use href="#heart" x="660" y="65" fill="url(#g)"/>
+          <use href="#heart" x="720" y="45" fill="url(#g)"/>
+          <use href="#heart" x="780" y="75" fill="url(#g)"/>
+          <use href="#heart" x="840" y="50" fill="url(#g)"/>
+          <use href="#heart" x="900" y="35" fill="url(#g)"/>
+          <use href="#heart" x="960" y="65" fill="url(#g)"/>
+          <use href="#heart" x="1020" y="45" fill="url(#g)"/>
+          <use href="#heart" x="1080" y="75" fill="url(#g)"/>
+          <use href="#heart" x="1140" y="55" fill="url(#g)"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Accept / Decline Modals -->
+  <div class="modal" id="modalTerima" role="dialog" aria-modal="true" aria-labelledby="mtitle">
+    <div class="box">
+      <h3 id="mtitle">💞 Terima Kasih Sudah Menerima</h3>
+      <p>Langit terasa lebih muda, dan esok punya banyak rencana. Kita jaga rasa ini pelan-pelan, ya.</p>
+      <div class="cta" style="margin-top:10px">
+        <button class="btn primary" id="btnRayakan">Rayakan dengan Love</button>
+        <button class="btn ghost" id="btnTutupTerima">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modalTolak" role="dialog" aria-modal="true" aria-labelledby="ltitle">
+    <div class="box">
+      <h3 id="ltitle">🌸 Terima Kasih atas Kejujuranmu</h3>
+      <p>Kamu tetap berharga. Tidak apa menolak—rasa yang baik selalu menjunjung hormat. Aku akan tetap mendoakan yang terbaik untukmu.</p>
+      <div class="cta" style="margin-top:10px">
+        <button class="btn ghost" id="btnTutupTolak">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confetti canvas -->
+  <canvas class="confetti" id="confetti"></canvas>
+
+  <footer>
+    Dibuat dengan 💖 dan keberanian — semoga jawaban yang datang juga hangat.
+  </footer>
+
+  <script>
+    // =====================
+    // HEART PARTICLES
+    // =====================
+    const hearts = document.getElementById('hearts');
+    function spawnHearts(burstX, burstY, count=26){
+      for(let i=0;i<count;i++){
+        const h=document.createElement('div'); h.className='heart';
+        const size = 10 + Math.random()*22;
+        h.style.width=h.style.height=size+'px';
+        const x = (burstX ?? (innerWidth/2)) + (Math.random()*160-80);
+        const y = (burstY ?? (innerHeight-40)) + (Math.random()*40-20);
+        h.style.left = x + 'px';
+        h.style.top  = y + 'px';
+        h.style.animationDuration = (3 + Math.random()*3)+'s';
+        h.style.opacity = 0.25 + Math.random()*0.4;
+        hearts.appendChild(h);
+        setTimeout(()=>h.remove(), 7000);
+      }
+    }
+
+    // gentle background hearts loop
+    setInterval(()=>{
+      const x = Math.random()*innerWidth;
+      const y = innerHeight - 10;
+      spawnHearts(x,y,6);
+    }, 1800);
+
+    // =====================
+    // ACCEPT / DECLINE FLOW
+    // =====================
+    const btnTerima = document.getElementById('btnTerima');
+    const btnTolak  = document.getElementById('btnTolak');
+    const statusEl  = document.getElementById('status');
+
+    const modalTerima = document.getElementById('modalTerima');
+    const modalTolak  = document.getElementById('modalTolak');
+    const btnTutupTerima = document.getElementById('btnTutupTerima');
+    const btnTutupTolak  = document.getElementById('btnTutupTolak');
+    const btnRayakan     = document.getElementById('btnRayakan');
+
+    btnTerima.addEventListener('click', (e)=>{
+      const r = e.target.getBoundingClientRect();
+      spawnHearts(r.left + r.width/2, r.top + window.scrollY, 36);
+      statusEl.textContent = 'Jawabanmu diterima dengan sepenuh hati 💖';
+      modalTerima.classList.add('show');
+    });
+
+    btnTolak.addEventListener('click', (e)=>{
+      const r = e.target.getBoundingClientRect();
+      spawnHearts(r.left + r.width/2, r.top + window.scrollY, 12);
+      statusEl.textContent = 'Terima kasih sudah jujur. Rasa baik tetap saling menghormati 🌸';
+      modalTolak.classList.add('show');
+    });
+
+    btnTutupTerima.addEventListener('click', ()=> modalTerima.classList.remove('show'));
+    btnTutupTolak.addEventListener('click',  ()=> modalTolak.classList.remove('show'));
+
+    // =====================
+    // CONFETTI HEARTS (Canvas)
+    // =====================
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
+    let W = canvas.width = innerWidth; let H = canvas.height = innerHeight;
+    window.addEventListener('resize', ()=>{ W = canvas.width = innerWidth; H = canvas.height = innerHeight; })
+
+    function rand(min,max){ return Math.random()*(max-min)+min }
+    function Heart(){
+      this.x=rand(0,W); this.y=rand(-40,-10); this.s=rand(6,18); this.vx=rand(-.6,.6); this.vy=rand(1.2,2.4); this.rot=rand(0,Math.PI*2); this.vr=rand(-.03,.03);
+      const shades=['#ff5fa3','#ff86bf','#ffc1dc']; this.c=shades[(Math.random()*shades.length)|0];
+    }
+    Heart.prototype.update=function(){ this.x+=this.vx; this.y+=this.vy; this.rot+=this.vr; if(this.y>H+20){ this.x=rand(0,W); this.y=rand(-80,-20) } }
+    Heart.prototype.draw=function(){
+      const s=this.s; ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(this.rot); ctx.scale(1,1);
+      ctx.fillStyle=this.c;
+      ctx.beginPath();
+      ctx.moveTo(0,0);
+      // simple heart using two arcs and a triangle-ish bottom
+      ctx.arc(-s*0.35,-s*0.25,s*0.35,0,Math.PI,true);
+      ctx.arc( s*0.35,-s*0.25,s*0.35,0,Math.PI,true);
+      ctx.lineTo(0,s*0.9);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    let confetti=[], playing=false;
+    function startConfetti(){
+      confetti = Array.from({length: 120}, ()=> new Heart());
+      if(!playing){ playing=true; loop() }
+    }
+    function stopConfetti(){ playing=false; confetti=[]; ctx.clearRect(0,0,W,H) }
+
+    function loop(){
+      if(!playing) return; requestAnimationFrame(loop);
+      ctx.clearRect(0,0,W,H);
+      confetti.forEach(h=>{ h.update(); h.draw(); });
+    }
+
+    btnRayakan.addEventListener('click', ()=>{
+      startConfetti();
+      setTimeout(()=>{ stopConfetti(); modalTerima.classList.remove('show'); }, 3500);
+    });
+
+    // Accessibility: close modal with Escape
+    window.addEventListener('keydown', (e)=>{
+      if(e.key==='Escape'){ modalTerima.classList.remove('show'); modalTolak.classList.remove('show'); }
+    })
+  </script>
+</body>
+</html>
